@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RYDAXOR</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6200EA;
+            --secondary-color: #3700B3;
+            --text-color: #FFFFFF;
+            --background-color: #121212;
+            --card-color: #1E1E1E;
+            --accent-color: #BB86FC;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--card-color);
+            padding: 1rem 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo-container img {
+            width: 150px;
+            height: auto;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+
+        .nav-links a:hover, .nav-links a.active {
+            color: var(--accent-color);
+            background-color: rgba(187, 134, 252, 0.1);
+        }
+
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            cursor: pointer;
+        }
+
+        .menu-toggle span {
+            height: 3px;
+            width: 100%;
+            background-color: var(--text-color);
+            border-radius: 10px;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            min-height: calc(100vh - 150px);
+        }
+
+        section {
+            margin-bottom: 50px;
+        }
+
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+            text-align: center;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .hero img {
+            max-width: 300px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 30px;
+        }
+
+        .cta-button {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            padding: 12px 24px;
+            font-size: 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .cta-button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .projects-container, .logos-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            justify-content: center;
+            margin: 0 auto;
+        }
+
+        .project-card, .logo-card {
+            background-color: var(--card-color);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .project-card:hover, .logo-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+        }
+
+        .project-card img, .logo-card img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .project-content, .logo-content {
+            padding: 20px;
+        }
+
+        .project-title {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            color: var(--accent-color);
+        }
+
+        .project-description {
+            color: #cccccc;
+            margin-bottom: 15px;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 10px;
+        }
+
+        .project-link {
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 8px 15px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .project-link:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .youtube-container {
+            max-width: 800px;
+            margin: 0 auto 50px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        footer {
+            background-color: var(--card-color);
+            padding: 30px 0;
+            text-align: center;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .social-links a {
+            color: var(--text-color);
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+
+        .social-links a:hover {
+            color: var(--accent-color);
+        }
+
+        .copyright {
+            color: #999999;
+            font-size: 0.9rem;
+        }
+
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: var(--card-color);
+            margin: 10% auto;
+            padding: 30px;
+            border-radius: 8px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            transform: translateY(-30px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .modal.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #999999;
+            transition: color 0.3s ease;
+        }
+
+        .close-modal:hover {
+            color: var(--accent-color);
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+        }
+
+        .modal p {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+        }
+
+        .modal a {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: 600;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal a:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Spinner for projects loading */
+        .spinner {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+        }
+
+        .spinner div {
+            width: 18px;
+            height: 18px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            margin: 0 5px;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+
+        .spinner div:nth-child(1) { animation-delay: -0.32s; }
+        .spinner div:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+
+        .loading-text {
+            text-align: center;
+            margin-top: 10px;
+            color: #999999;
+        }
+
+        .error-message {
+            text-align: center;
+            color: #ff6b6b;
+            margin: 40px 0;
+            padding: 20px;
+            background-color: rgba(255, 107, 107, 0.1);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .logo-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.9);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .logo-modal.show {
+            opacity: 1;
+        }
+
+        .logo-modal-content {
+            margin: 5% auto;
+            max-width: 80%;
+            max-height: 80vh;
+            text-align: center;
+            transform: scale(0.95);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .logo-modal.show .logo-modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+
+        .logo-modal-content img {
+            max-width: 100%;
+            max-height: 80vh;
+            object-fit: contain;
+        }
+
+        .close-logo-modal {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: white;
+            transition: color 0.3s ease;
+        }
+
+        .close-logo-modal:hover {
+            color: var(--accent-color);
+        }
+
+        /* Centralize single project cards when fewer than 3 */
+        @media (min-width: 992px) {
+            .projects-container, .logos-container {
+                justify-content: center;
+            }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                width: 100%;
+                background-color: var(--card-color);
+                flex-direction: column;
+                padding: 20px;
+                gap: 15px;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            }
+
+            .nav-links.show {
+                display: flex;
+            }
+
+            .menu-toggle {
+                display: flex;
+            }
+
+            .projects-container, .logos-container {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+
+            .modal-content {
+                margin: 20% auto;
+                padding: 20px;
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="logo-container">
+                <img src="https://github.com/RYDAXOR/rydaxor.github.io/blob/main/RYDAXOR.png?raw=true" alt="RYDAXOR Logo" onerror="this.src='/api/placeholder/150/50'">
+            </div>
+            <div class="nav-links" id="navLinks">
+                <a href="#" class="nav-link active" data-page="home">Home</a>
+                <a href="#" class="nav-link" data-page="projects">Projects</a>
+                <a href="#" class="nav-link" data-page="logos">Logos</a>
+                <a href="#" class="nav-link" data-page="contact">Contato</a>
+            </div>
+            <div class="menu-toggle" id="menuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Home Page -->
+        <section id="home-page" class="page active">
+            <div class="hero">
+                <img src="https://github.com/RYDAXOR/rydaxor.github.io/blob/main/RYDAXOR.png?raw=true" alt="RYDAXOR Logo" onerror="this.src='/api/placeholder/300/150'">
+                <h1>Bem-vindo aos Projetos RYDAXOR</h1>
+                <p>Explore meus projetos, logos e criações. Sou um desenvolvedor apaixonado por criar soluções inovadoras e designs impactantes.</p>
+                <a href="#" class="cta-button" data-page="projects">Ver Projetos</a>
+            </div>
+
+            <h2>Meu Último Vídeo</h2>
+            <div class="youtube-container">
+                <div class="video-wrapper" id="youtube-video">
+                    <!-- YouTube video will be loaded here -->
+                </div>
+            </div>
+
+            <h2>Projetos Recentes</h2>
+            <div class="projects-container" id="featured-projects">
+                <div class="spinner">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <p class="loading-text">Carregando projetos...</p>
+            </div>
+            <div class="error-message" id="featured-error">
+                Não foi possível carregar os projetos. Por favor, tente novamente mais tarde.
+            </div>
+        </section>
+
+        <!-- Projects Page -->
+        <section id="projects-page" class="page">
+            <h1>Meus Projetos no GitHub</h1>
+            <div class="projects-container" id="all-projects">
+                <div class="spinner">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <p class="loading-text">Carregando projetos...</p>
+            </div>
+            <div class="error-message" id="projects-error">
+                Não foi possível carregar os projetos. Por favor, tente novamente mais tarde.
+            </div>
+        </section>
+
+        <!-- Logos Page -->
+        <section id="logos-page" class="page">
+            <h1>Meus Logos</h1>
+            <div class="logos-container" id="logos-container">
+                <div class="spinner">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+                <p class="loading-text">Carregando logos...</p>
+            </div>
+            <div class="error-message" id="logos-error">
+                Não foi possível carregar os logos. Por favor, tente novamente mais tarde.
+            </div>
+        </section>
+
+        <!-- Contact Page -->
+        <section id="contact-page" class="page">
+            <h1>Entre em Contato</h1>
+            <div style="text-align: center; margin-top: 50px;">
+                <p style="font-size: 1.2rem; margin-bottom: 30px;">Clique no botão abaixo para entrar em contato através do Discord:</p>
+                <button id="discord-btn" class="cta-button">
+                    <i class="fab fa-discord" style="margin-right: 10px;"></i>Entrar no Discord
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="social-links">
+            <a href="https://github.com/RYDAXOR" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://www.youtube.com/channel/RYDAXOR" target="_blank"><i class="fab fa-youtube"></i></a>
+            <a href="https://grafenotk.xyz/dc" target="_blank"><i class="fab fa-discord"></i></a>
+        </div>
+        <p class="copyright">© 2025 RYDAXOR - Todos os direitos reservados</p>
+    </footer>
+
+    <!-- Discord Contact Modal -->
+    <div id="discord-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <h2>Junte-se ao Discord</h2>
+            <p>Clique no botão abaixo para entrar no servidor do Discord:</p>
+            <a href="https://grafenotk.xyz/dc" target="_blank">
+                <i class="fab fa-discord" style="margin-right: 10px;"></i>Abrir Discord
+            </a>
+        </div>
+    </div>
+
+    <!-- Logo Modal for larger view -->
+    <div id="logo-modal" class="logo-modal">
+        <span class="close-logo-modal" id="close-logo-modal">&times;</span>
+        <div class="logo-modal-content">
+            <img id="modal-logo-img" src="" alt="Logo em tamanho maior">
+        </div>
+    </div>
+
+    <script>
+        // Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pages = document.querySelectorAll('.page');
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinksContainer = document.getElementById('navLinks');
+
+        // Default image path for fallbacks
+        const DEFAULT_IMAGE = 'https://static.vecteezy.com/system/resources/previews/020/765/399/original/default-profile-account-unknown-icon-black-silhouette-free-vector.jpg';
+
+        // Initialize page display
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hide all pages except home
+            pages.forEach(page => {
+                if (page.id !== 'home-page') {
+                    page.style.display = 'none';
+                }
+            });
+        });
+
+        // Set fallback for all images on load
+        document.addEventListener('DOMContentLoaded', () => {
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.addEventListener('error', function() {
+                    this.src = DEFAULT_IMAGE;
+                });
+            });
+        });
+
+        // Switch pages - modified to avoid flashing
+        function switchPage(pageId) {
+            // Hide all pages
+            pages.forEach(page => {
+                if (page.classList.contains('active')) {
+                    page.classList.remove('active');
+                    // Use setTimeout to ensure smooth transition
+                    setTimeout(() => {
+                        page.style.display = 'none';
+                        
+                        // Show selected page after previous one is hidden
+                        const selectedPage = document.getElementById(`${pageId}-page`);
+                        if (selectedPage) {
+                            selectedPage.style.display = 'block';
+                            // Force reflow before adding active class
+                            void selectedPage.offsetWidth;
+                            selectedPage.classList.add('active');
+                            
+                            // Load content if needed
+                            if (pageId === 'logos' && !logosLoaded) {
+                                fetchLogosFromFolder();
+                                logosLoaded = true;
+                            }
+                        }
+                    }, 50);
+                }
+            });
+            
+            // Update active nav link
+            navLinks.forEach(link => {
+                if (link.getAttribute('data-page') === pageId) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+            
+            // Close mobile menu if open
+            navLinksContainer.classList.remove('show');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Handle navigation clicks
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = link.getAttribute('data-page');
+                switchPage(pageId);
+            });
+        });
+
+        // CTA button
+        document.querySelector('.cta-button[data-page]').addEventListener('click', (e) => {
+            e.preventDefault();
+            const pageId = e.target.getAttribute('data-page');
+            switchPage(pageId);
+        });
+
+        // Mobile menu toggle
+        menuToggle.addEventListener('click', () => {
+            navLinksContainer.classList.toggle('show');
+        });
+
+        // Discord modal - improved transitions
+        const discordBtn = document.getElementById('discord-btn');
+        const discordModal = document.getElementById('discord-modal');
+        const closeModal = document.getElementById('close-modal');
+
+        discordBtn.addEventListener('click', () => {
+            discordModal.style.display = 'block';
+            // Force reflow before transition
+            void discordModal.offsetWidth;
+            discordModal.classList.add('show');
+        });
+
+        function closeDiscordModal() {
+            discordModal.classList.remove('show');
+            setTimeout(() => {
+                discordModal.style.display = 'none';
+            }, 300); // Match transition duration
+        }
+
+        closeModal.addEventListener('click', closeDiscordModal);
+
+        window.addEventListener('click', (e) => {
+            if (e.target === discordModal) {
+                closeDiscordModal();
+            }
+        });
+
+        // Logo modal for larger view - improved transitions
+        const logoModal = document.getElementById('logo-modal');
+        const modalLogoImg = document.getElementById('modal-logo-img');
+        const closeLogoModal = document.getElementById('close-logo-modal');
+
+        function setupLogoCardListeners() {
+            const logoCards = document.querySelectorAll('.logo-card');
+            logoCards.forEach(card => {
+                const img = card.querySelector('img');
+                card.addEventListener('click', () => {
+                    modalLogoImg.src = img.src;
+                    logoModal.style.display = 'block';
+                    // Force reflow before transition
+                    void logoModal.offsetWidth;
+                    logoModal.classList.add('show');
+                });
+            });
+        }
+
+        function closeLogoModalFn() {
+            logoModal.classList.remove('show');
+            setTimeout(() => {
+                logoModal.style.display = 'none';
+            }, 300); // Match transition duration
+        }
+
+        closeLogoModal.addEventListener('click', closeLogoModalFn);
+
+        logoModal.addEventListener('click', (e) => {
+            if (e.target === logoModal) {
+                closeLogoModalFn();
+            }
+        });
+
+        // Fetch GitHub projects
+        async function fetchGitHubProjects() {
+            try {
+                const response = await fetch('https://api.github.com/users/RYDAXOR/repos');
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch repositories');
+                }
+                
+                const repos = await response.json();
+                
+                // Display featured projects (limit to 3)
+                const featuredProjects = repos.slice(0, 3);
+                displayProjects(featuredProjects, 'featured-projects');
+                
+                // Display all projects
+                displayProjects(repos, 'all-projects');
+                
+                return repos;
+            } catch (error) {
+                console.error('Error fetching GitHub repositories:', error);
+                document.getElementById('featured-error').style.display = 'block';
+                document.getElementById('projects-error').style.display = 'block';
+                document.querySelector('#featured-projects .spinner').style.display = 'none';
+                document.querySelector('#all-projects .spinner').style.display = 'none';
+                document.querySelector('#featured-projects .loading-text').style.display = 'none';
+                document.querySelector('#all-projects .loading-text').style.display = 'none';
+                return [];
+            }
+        }
+
+        function displayProjects(projects, containerId) {
+            const container = document.getElementById(containerId);
+            
+            // Clear loading indicators
+            container.innerHTML = '';
+            
+            if (projects.length === 0) {
+                container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Nenhum projeto encontrado.</p>';
+                return;
+            }
+            
+            projects.forEach(project => {
+                // Create project card
+                const card = document.createElement('div');
+                card.className = 'project-card';
+                
+                // Determine image (use repo image if available or placeholder)
+                const imageUrl = project.topics && project.topics.includes('featured') 
+                    ? `https://raw.githubusercontent.com/${project.full_name}/main/preview.png` 
+                    : DEFAULT_IMAGE;
+                
+                card.innerHTML = `
+                    <img src="${imageUrl}" alt="${project.name}" onerror="this.src='${DEFAULT_IMAGE}'">
+                    <div class="project-content">
+                        <h3 class="project-title">${project.name}</h3>
+                        <p class="project-description">${project.description || 'Sem descrição disponível.'}</p>
+                        <div class="project-links">
+                            <a href="${project.html_url}" target="_blank" class="project-link">
+                                <i class="fab fa-github" style="margin-right: 5px;"></i> Código
+                            </a>
+                            ${project.homepage ? `
+                                <a href="${project.homepage}" target="_blank" class="project-link">
+                                    <i class="fas fa-external-link-alt" style="margin-right: 5px;"></i> Demo
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(card);
+            });
+            
+            // Ensure proper centering for containers with few items
+            centerProjectCards(container);
+        }
+        
+        // Function to ensure proper centering for containers with few items
+        function centerProjectCards(container) {
+            const cards = container.querySelectorAll('.project-card, .logo-card');
+            if (cards.length < 3) {
+                cards.forEach(card => {
+                    card.style.margin = "0 auto";
+                    if (cards.length === 1) {
+                        card.style.maxWidth = "400px";
+                    }
+                });
+            }
+        }
+
+        // Função para gerar URLs de logo com extensões aleatórias
+function generateRandomLogoUrls(count = 10) {
+    const baseUrl = "https://rydaxor.github.io/logosMaker/";
+    const extensions = ["jpg", "png", "webp"];
+    const results = [];
+    
+    for (let i = 0; i < count; i++) {
+        // Gerar um nome simples
+        const logoName = `logo${i + 1}`;
+        
+        // Escolher uma extensão aleatória
+        const randomExtension = extensions[Math.floor(Math.random() * extensions.length)];
+        
+        // Criar a URL completa
+        const url = `${baseUrl}${logoName}.${randomExtension}`;
+        results.push(url);
+    }
+    
+    return results;
+}
+
+// Função para buscar logos com extensões aleatórias
+function fetchLogosWithRandomExtensions(count = 10) {
+    // Evitar múltiplas execuções
+    if (window.logosLoaded) return;
+    
+    const logosContainer = document.getElementById('logos-container');
+    
+    // Limpar container
+    logosContainer.innerHTML = '<p id="loading-message">Carregando logos...</p>';
+    
+    // Gerar URLs de logo com extensões aleatórias
+    const imageUrls = generateRandomLogoUrls(count);
+    
+    // Contadores para rastreamento de carregamento
+    let loadedCount = 0;
+    let attemptedCount = 0;
+    
+    // Função para verificar conclusão
+    function checkCompletion() {
+        attemptedCount++;
+        
+        // Se já tentamos todas as imagens
+        if (attemptedCount >= imageUrls.length) {
+            // Se nenhuma foi carregada
+            if (loadedCount === 0) {
+                logosContainer.innerHTML = `
+                    <p style="text-align: center; color: red;">Nenhuma logo encontrada.</p>
+                    <p style="text-align: center;">Verifique se os arquivos estão disponíveis em: 
+                        <a href="https://github.com/RYDAXOR/rydaxor.github.io/tree/main/logosMaker" 
+                           target="_blank">GitHub Repository</a>
+                    </p>
+                `;
+                
+                console.error("Não foi possível carregar nenhuma imagem com extensões aleatórias");
+            } else {
+                console.log(`${loadedCount} logos foram carregadas com sucesso.`);
+                
+                // Se encontrou logos, configura listeners e centraliza
+                if (typeof setupLogoCardListeners === 'function') {
+                    setupLogoCardListeners();
+                }
+                
+                if (typeof centerProjectCards === 'function') {
+                    centerProjectCards(logosContainer);
+                }
+            }
+        }
+    }
+    
+    // Tentar cada URL de imagem
+    imageUrls.forEach(url => {
+        const img = new Image();
+        
+        img.onload = function() {
+            // Remove mensagem de carregamento na primeira imagem
+            if (loadedCount === 0) {
+                const loadingMessage = document.getElementById('loading-message');
+                if (loadingMessage) loadingMessage.remove();
+            }
+            
+            loadedCount++;
+            window.logosLoaded = true;
+            
+            // Extrai o nome do arquivo da URL
+            const fileName = url.split('/').pop();
+            
+            // Cria card
+            const card = document.createElement('div');
+            card.className = 'logo-card';
+            
+            card.innerHTML = `
+                <img src="${url}" alt="Logo">
+                <div class="logo-content">
+                    <h3 class="project-title">${fileName}</h3>
+                </div>
+            `;
+            
+            logosContainer.appendChild(card);
+            checkCompletion();
+        };
+        
+        img.onerror = function() {
+            checkCompletion();
+        };
+        
+        // Adiciona timestamp para evitar cache
+        img.src = url + '?t=' + new Date().getTime();
+    });
+    
+    // Teste de conexão após timeout
+    setTimeout(() => {
+        if (loadedCount === 0) {
+            fetch('https://rydaxor.github.io/', { method: 'HEAD' })
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Site GitHub Pages acessível, mas nenhuma imagem encontrada");
+                    } else {
+                        console.error("Site GitHub Pages inacessível");
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao acessar o site:", error);
+                });
+        }
+    }, 5000);
+}
+
+        // Load YouTube video
+        function loadYouTubeVideo() {
+    // Elemento que vai conter o vídeo
+    const youtubeContainer = document.getElementById('youtube-video');
+    
+    // Como você forneceu o título do vídeo, preciso encontrar o ID do vídeo
+    // Normalmente seria necessário pesquisar, mas vou usar um exemplo que você pode substituir
+    
+    // ID do vídeo "OPTIMIZER FOR WINDOWS - @GrafenoTK | A VOLTA DA GRAFANOTK.XYZ"
+    // Substitua este ID pelo ID real do vídeo
+    const videoId = 'YDO3AdgTKe8'; // Você precisará substituir por um ID válido
+    
+    // Inserir o iframe com o vídeo específico
+    youtubeContainer.innerHTML = `
+        <div class="video-container">
+            <h3>OPTIMIZER FOR WINDOWS - @GrafenoTK | A VOLTA DA GRAFANOTK.XYZ</h3>
+            <iframe 
+                width="560"
+                height="315"
+                src="https://www.youtube.com/embed/${videoId}" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+        </div>
+    `;
+}
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load featured projects and GitHub repos
+            fetchGitHubProjects();
+            
+            // Load YouTube video
+            loadYouTubeVideo();
+            
+            // Set up keyboard navigation for modals
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (discordModal.classList.contains('show')) {
+                        closeDiscordModal();
+                    }
+                    if (logoModal.classList.contains('show')) {
+                        closeLogoModalFn();
+                    }
+                }
+            });
+        });
+
+        // Handle page specific initialization
+        const initPageContent = (pageId) => {
+            if (pageId === 'logos' && !logosLoaded) {
+                fetchLogosFromFolder();
+                logosLoaded = true;
+            }
+        };
+
+        // Check if URL has a hash and navigate accordingly
+        window.addEventListener('load', () => {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                const validPages = ['home', 'projects', 'logos', 'contact'];
+                if (validPages.includes(hash)) {
+                    switchPage(hash);
+                }
+            }
+        });
+
+        // Update URL hash when page changes
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                const pageId = link.getAttribute('data-page');
+                window.location.hash = pageId;
+            });
+        });
+    </script>
+</body>
+</html>
