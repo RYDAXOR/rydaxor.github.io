@@ -794,51 +794,78 @@
             }
         }
 
-        function displayProjects(projects, containerId) {
-            const container = document.getElementById(containerId);
+function displayProjects(projects, containerId) {
+    const container = document.getElementById(containerId);
+    
+    // Clear loading indicators
+    container.innerHTML = '';
+    
+    if (projects.length === 0) {
+        container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Nenhum projeto encontrado.</p>';
+        return;
+    }
+    
+    projects.forEach(project => {
+        // Create project card
+        const card = document.createElement('div');
+        card.className = 'project-card';
+        
+        // URLs corretas para GitHub raw content
+        const mainBranchUrl = `https://raw.githubusercontent.com/${project.full_name}/main/preview.png`;
+        const masterBranchUrl = `https://raw.githubusercontent.com/${project.full_name}/master/preview.png`;
+        
+        // Create card HTML with proper structure
+        card.innerHTML = `
+            <div class="image-container" style="position: relative; width: 100%; height: 180px; overflow: hidden;">
+                <img src="${mainBranchUrl}" alt="${project.name}" 
+                     style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+            <div class="project-content">
+                <h3 class="project-title">${project.name}</h3>
+                <p class="project-description">${project.description || 'Sem descrição disponível.'}</p>
+                <div class="project-links">
+                    <a href="${project.html_url}" target="_blank" class="project-link">
+                        <i class="fab fa-github" style="margin-right: 5px;"></i> Código
+                    </a>
+                    ${project.homepage ? `
+                        <a href="${project.homepage}" target="_blank" class="project-link">
+                            <i class="fas fa-external-link-alt" style="margin-right: 5px;"></i> Demo
+                        </a>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+        
+        container.appendChild(card);
+        
+        // Melhor manipulação de erro para imagens
+        const img = card.querySelector('img');
+        
+        // Primeiro tentar com branch main
+        img.onerror = function() {
+            console.log(`Falha ao carregar imagem para ${project.name} do branch main, tentando branch master`);
+            this.src = masterBranchUrl;
             
-            // Clear loading indicators
-            container.innerHTML = '';
-            
-            if (projects.length === 0) {
-                container.innerHTML = '<p style="text-align: center; grid-column: 1 / -1;">Nenhum projeto encontrado.</p>';
-                return;
-            }
-            
-            projects.forEach(project => {
-                // Create project card
-                const card = document.createElement('div');
-                card.className = 'project-card';
+            // Se falhar com branch master, tentar com nome do repositório
+            this.onerror = function() {
+                console.log(`Falha ao carregar imagem para ${project.name} do branch master, tentando nome do projeto`);
+                this.src = `https://raw.githubusercontent.com/${project.full_name}/main/${project.name}.png`;
                 
-                // Determine image (use repo image if available or placeholder)
-                const imageUrl = project.topics && project.topics.includes('featured') 
-                    ? `https://raw.githubusercontent.com/RYDAXOR/${project.full_name}/refs/heads/main/preview.png` 
-                    : DEFAULT_IMAGE;
-                
-                card.innerHTML = `
-                    <img src="${imageUrl}" alt="${project.name}" onerror="this.src='${DEFAULT_IMAGE}'">
-                    <div class="project-content">
-                        <h3 class="project-title">${project.name}</h3>
-                        <p class="project-description">${project.description || 'Sem descrição disponível.'}</p>
-                        <div class="project-links">
-                            <a href="${project.html_url}" target="_blank" class="project-link">
-                                <i class="fab fa-github" style="margin-right: 5px;"></i> Código
-                            </a>
-                            ${project.homepage ? `
-                                <a href="${project.homepage}" target="_blank" class="project-link">
-                                    <i class="fas fa-external-link-alt" style="margin-right: 5px;"></i> Demo
-                                </a>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
-                
-                container.appendChild(card);
-            });
-            
-            // Ensure proper centering for containers with few items
-            centerProjectCards(container);
-        }
+                // Se ainda falhar, usar imagem padrão
+                this.onerror = function() {
+                    console.log(`Todas as tentativas falharam para ${project.name}, usando imagem padrão`);
+                    this.src = DEFAULT_IMAGE;
+                    
+                    // Remover manipulador de erro para evitar loops
+                    this.onerror = null;
+                };
+            };
+        };
+    });
+    
+    // Ensure proper centering for containers with few items
+    centerProjectCards(container);
+}
         
         // Function to ensure proper centering for containers with few items
         function centerProjectCards(container) {
