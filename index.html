@@ -853,132 +853,325 @@
             }
         }
 
-        // Função para gerar URLs de logo com extensões aleatórias
-function generateRandomLogoUrls(count = 10) {
-    const baseUrl = "https://rydaxor.github.io/logosMaker/";
-    const extensions = ["jpg", "png", "webp"];
-    const results = [];
-    
-    for (let i = 0; i < count; i++) {
-        // Gerar um nome simples
-        const logoName = `logo${i + 1}`;
-        
-        // Escolher uma extensão aleatória
-        const randomExtension = extensions[Math.floor(Math.random() * extensions.length)];
-        
-        // Criar a URL completa
-        const url = `${baseUrl}${logoName}.${randomExtension}`;
-        results.push(url);
-    }
-    
-    return results;
-}
+        // Variável global para controlar se os logos já foram carregados
+let logosLoaded = false;
 
-// Função para buscar logos com extensões aleatórias
-function fetchLogosWithRandomExtensions(count = 10) {
+// Função para buscar logos da pasta local "img"
+function fetchLogosFromFolder() {
     // Evitar múltiplas execuções
-    if (window.logosLoaded) return;
+    if (logosLoaded) return;
     
     const logosContainer = document.getElementById('logos-container');
     
     // Limpar container
-    logosContainer.innerHTML = '<p id="loading-message">Carregando logos...</p>';
+    logosContainer.innerHTML = '';
     
-    // Gerar URLs de logo com extensões aleatórias
-    const imageUrls = generateRandomLogoUrls(count);
+    // Adicionar estilos CSS para controlar o espaçamento e centralizar
+    const styleElement = document.createElement('style');
+    styleElement.textContent = `
+        #logos-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px; /* Espaçamento reduzido entre os logos */
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            max-width: 90%; /* Aumentado para melhor utilização do espaço */
+            width: 100%;
+            margin: 0 auto; /* Centralizar na tela */
+            box-sizing: border-box;
+        }
+        
+        .logo-card {
+            width: 210px;
+            height: 210px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0; /* Removendo margens adicionais */
+            padding: 5px;
+            transition: transform 0.2s;
+        }
+        
+        .logo-card:hover {
+            transform: scale(1.05);
+        }
+        
+        .logo-card img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .loading-text, .spinner {
+            width: 100%;
+            text-align: center;
+            margin: 10px auto;
+        }
+        
+        /* Container principal para centralizar tudo na página */
+        .main-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            flex-direction: column;
+        }
+    `;
+    document.head.appendChild(styleElement);
+    
+    // Criar container principal para centralização perfeita
+    const mainContainer = document.createElement('div');
+    mainContainer.className = 'main-container';
+    
+    // Mover logos-container para dentro do main-container
+    const parentElement = logosContainer.parentElement;
+    parentElement.insertBefore(mainContainer, logosContainer);
+    mainContainer.appendChild(logosContainer);
+    
+    // O URL base para a pasta local "img"
+    const baseUrl = "./img/";
+    
+    // Lista de possíveis nomes de arquivo e extensões
+    const possibleNames = [];
+    const extensions = ["jpg", "png", "webp"];
+    
+    // Adicionar variações de nomes simples
+    for (let i = 1; i <= 30; i++) {
+        possibleNames.push(`${i}`);
+        possibleNames.push(`logo${i}`);
+        possibleNames.push(`image${i}`);
+    }
+    
+    // Adicionar alguns nomes básicos que possam existir
+    // Adicionar alguns nomes básicos que possam existir
+["logo", "image", "img", "icon", "photo", "pic"].forEach(name => {
+    possibleNames.push(name);
+});
+    
+    // Gerar todas as combinações de nome+extensão
+    const imageUrls = [];
+    possibleNames.forEach(name => {
+        extensions.forEach(ext => {
+            imageUrls.push(`${baseUrl}${name}.${ext}`);
+        });
+    });
     
     // Contadores para rastreamento de carregamento
     let loadedCount = 0;
     let attemptedCount = 0;
+    const maxImagesToShow = 50; // Limite para mostrar imagens
+    
+    // Array para armazenar todas as imagens carregadas
+    const loadedImages = [];
     
     // Função para verificar conclusão
     function checkCompletion() {
         attemptedCount++;
         
-        // Se já tentamos todas as imagens
-        if (attemptedCount >= imageUrls.length) {
+        // Se já tentamos todas as imagens ou carregamos o máximo desejado
+        if (attemptedCount >= imageUrls.length || loadedCount >= maxImagesToShow) {
             // Se nenhuma foi carregada
             if (loadedCount === 0) {
                 logosContainer.innerHTML = `
-                    <p style="text-align: center; color: red;">Nenhuma logo encontrada.</p>
-                    <p style="text-align: center;">Verifique se os arquivos estão disponíveis em: 
-                        <a href="https://github.com/RYDAXOR/rydaxor.github.io/tree/main/logosMaker" 
-                           target="_blank">GitHub Repository</a>
-                    </p>
+                    <p style="text-align: center; color: red; width: 100%;">Nenhuma logo encontrada na pasta local "img".</p>
+                    <p style="text-align: center; width: 100%;">Verifique se a pasta existe e contém arquivos de imagem.</p>
                 `;
                 
-                console.error("Não foi possível carregar nenhuma imagem com extensões aleatórias");
+                console.error("Não foi possível carregar nenhuma imagem da pasta img local");
             } else {
                 console.log(`${loadedCount} logos foram carregadas com sucesso.`);
                 
-                // Se encontrou logos, configura listeners e centraliza
+                // Exibir todas as imagens lado a lado
+                displayLoadedImages();
+                
+                // Configurar listeners para os cards se necessário
                 if (typeof setupLogoCardListeners === 'function') {
                     setupLogoCardListeners();
-                }
-                
-                if (typeof centerProjectCards === 'function') {
-                    centerProjectCards(logosContainer);
                 }
             }
         }
     }
     
-    // Tentar cada URL de imagem
-    imageUrls.forEach(url => {
-        const img = new Image();
+    // Função para exibir todas as imagens carregadas lado a lado
+    function displayLoadedImages() {
+        // Limpar o container
+        logosContainer.innerHTML = '';
         
-        img.onload = function() {
-            // Remove mensagem de carregamento na primeira imagem
-            if (loadedCount === 0) {
-                const loadingMessage = document.getElementById('loading-message');
-                if (loadingMessage) loadingMessage.remove();
-            }
-            
-            loadedCount++;
-            window.logosLoaded = true;
-            
-            // Extrai o nome do arquivo da URL
-            const fileName = url.split('/').pop();
-            
-            // Cria card
+        // Adicionar todas as imagens com espaçamento reduzido
+        loadedImages.forEach(imgUrl => {
             const card = document.createElement('div');
             card.className = 'logo-card';
             
-            card.innerHTML = `
-                <img src="${url}" alt="Logo">
-                <div class="logo-content">
-                    <h3 class="project-title">${fileName}</h3>
-                </div>
-            `;
+            // Apenas a imagem, sem texto
+            card.innerHTML = `<img src="${imgUrl}" alt="Logo">`;
             
             logosContainer.appendChild(card);
-            checkCompletion();
-        };
-        
-        img.onerror = function() {
-            checkCompletion();
-        };
-        
-        // Adiciona timestamp para evitar cache
-        img.src = url + '?t=' + new Date().getTime();
+        });
+    }
+    
+    // Mostrar indicador de carregamento
+    const loadingDiv = document.createElement('div');
+    loadingDiv.className = 'spinner';
+    loadingDiv.innerHTML = '<div></div><div></div><div></div>';
+    loadingDiv.style.textAlign = 'center';
+    loadingDiv.style.width = '100%';
+    
+    const loadingText = document.createElement('p');
+    loadingText.className = 'loading-text';
+    loadingText.id = 'loading-message';
+    loadingText.textContent = 'Carregando logos...';
+    loadingText.style.textAlign = 'center';
+    loadingText.style.width = '100%';
+    
+    logosContainer.appendChild(loadingDiv);
+    logosContainer.appendChild(loadingText);
+    
+    // Tentar cada URL de imagem
+    imageUrls.forEach((url, index) => {
+        // Atraso progressivo para não sobrecarregar o carregamento
+        setTimeout(() => {
+            // Se já encontramos imagens suficientes, pular o resto
+            if (loadedCount >= maxImagesToShow) {
+                checkCompletion();
+                return;
+            }
+            
+            const img = new Image();
+            
+            img.onload = function() {
+                // Remove mensagem de carregamento na primeira imagem
+                if (loadedCount === 0) {
+                    const loadingMessage = document.getElementById('loading-message');
+                    if (loadingMessage) {
+                        loadingMessage.remove();
+                        const spinner = document.querySelector('.spinner');
+                        if (spinner) spinner.remove();
+                    }
+                }
+                
+                loadedCount++;
+                logosLoaded = true;
+                
+                // Adicionar à lista de imagens carregadas
+                loadedImages.push(url);
+                
+                // Se tivermos algumas imagens, mostrar progressivamente
+                if (loadedCount % 5 === 0 || loadedCount === 1) {
+                    displayLoadedImages();
+                    if (typeof setupLogoCardListeners === 'function') {
+                        setupLogoCardListeners();
+                    }
+                }
+                
+                checkCompletion();
+                
+                // Registrar URL bem-sucedida para referência
+                console.log(`Logo carregada com sucesso: ${url}`);
+            };
+            
+            img.onerror = function() {
+                checkCompletion();
+            };
+            
+            // Adiciona timestamp para evitar cache
+            img.src = url + '?t=' + new Date().getTime();
+        }, index * 20); // Atraso progressivo entre tentativas
     });
     
-    // Teste de conexão após timeout
+    // Teste de acesso à pasta local após timeout
     setTimeout(() => {
         if (loadedCount === 0) {
-            fetch('https://rydaxor.github.io/', { method: 'HEAD' })
-                .then(response => {
-                    if (response.ok) {
-                        console.log("Site GitHub Pages acessível, mas nenhuma imagem encontrada");
-                    } else {
-                        console.error("Site GitHub Pages inacessível");
-                    }
-                })
-                .catch(error => {
-                    console.error("Erro ao acessar o site:", error);
-                });
+            // Tentar abordagem alternativa com mais nomes aleatórios
+            tryMoreRandomNames();
         }
-    }, 5000);
+    }, 8000);
+    
+    // Função para tentar mais nomes aleatórios como segunda tentativa
+    function tryMoreRandomNames() {
+        // Atualizar mensagem de carregamento
+        const loadingMessage = document.getElementById('loading-message');
+        if (loadingMessage) loadingMessage.textContent = 'Tentando mais combinações...';
+        
+        const randomNames = [];
+        
+        // Gerar nomes aleatórios em maior quantidade
+        for (let i = 0; i < 50; i++) {
+            randomNames.push(`img${i}`);
+            randomNames.push(`pic${i}`);
+            randomNames.push(`photo${i}`);
+            randomNames.push(`${Math.floor(Math.random() * 1000)}`);
+        }
+        
+        // Resetar contadores
+        loadedCount = 0;
+        attemptedCount = 0;
+        
+        // Gerar novos URLs
+        const randomUrls = [];
+        randomNames.forEach(name => {
+            extensions.forEach(ext => {
+                randomUrls.push(`${baseUrl}${name}.${ext}`);
+            });
+        });
+        
+        // Limpar lista de imagens carregadas
+        loadedImages.length = 0;
+        
+        // Tentar cada novo URL
+        randomUrls.forEach((url, index) => {
+            setTimeout(() => {
+                if (loadedCount >= maxImagesToShow) return;
+                
+                const img = new Image();
+                
+                img.onload = function() {
+                    if (loadedCount === 0) {
+                        const loadingMessage = document.getElementById('loading-message');
+                        if (loadingMessage) {
+                            loadingMessage.remove();
+                            const spinner = document.querySelector('.spinner');
+                            if (spinner) spinner.remove();
+                        }
+                    }
+                    
+                    loadedCount++;
+                    logosLoaded = true;
+                    
+                    // Adicionar à lista de imagens carregadas
+                    loadedImages.push(url);
+                    
+                    // Se tivermos algumas imagens, mostrar progressivamente
+                    if (loadedCount % 5 === 0 || loadedCount === 1) {
+                        displayLoadedImages();
+                        if (typeof setupLogoCardListeners === 'function') {
+                            setupLogoCardListeners();
+                        }
+                    }
+                    
+                    checkCompletion();
+                    
+                    console.log(`Logo adicional carregada com sucesso: ${url}`);
+                };
+                
+                img.onerror = function() {
+                    attemptedCount++;
+                    
+                    if (attemptedCount >= randomUrls.length && loadedCount === 0) {
+                        // Se não encontramos nenhuma imagem, mostrar mensagem de erro
+                        logosContainer.innerHTML = `
+                            <div style="text-align: center; width: 100%;">
+                                <p style="color: #ff6b6b; margin-bottom: 15px;">Nenhuma logo encontrada na pasta "img".</p>
+                                <p style="margin-bottom: 20px;">Para exibir logos, adicione imagens à pasta "img" no diretório raiz do seu site.</p>
+                            </div>
+                        `;
+                    }
+                };
+                
+                img.src = url + '?t=' + new Date().getTime();
+            }, index * 15);
+        });
+    }
 }
 
         // Load YouTube video
