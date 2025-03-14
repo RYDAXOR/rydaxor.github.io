@@ -1201,30 +1201,34 @@ function fetchLogosFromFolder() {
     }
 }
 
-        // Load YouTube video
-        function loadYouTubeVideo() {
+       // Load YouTube video
+function loadYouTubeVideo() {
     // Elemento que vai conter o vídeo
     const youtubeContainer = document.getElementById('youtube-video');
     
-    // Como você forneceu o título do vídeo, preciso encontrar o ID do vídeo
-    // Normalmente seria necessário pesquisar, mas vou usar um exemplo que você pode substituir
+    // ID do canal
+    const channelId = 'UCiD8TivHlPxsKzgCD22JuaQ';
     
-    // ID do vídeo "OPTIMIZER FOR WINDOWS - @GrafenoTK | A VOLTA DA GRAFANOTK.XYZ"
-    // Substitua este ID pelo ID real do vídeo
-    const videoId = 'YDO3AdgTKe8'; // Você precisará substituir por um ID válido
+    // Esta parte simularia uma chamada à API do YouTube para obter o último vídeo
+    // Na prática, você precisaria usar a API real do YouTube com uma chave de API válida
     
-    // Inserir o iframe com o vídeo específico
+    // Aqui estamos simulando que já obtivemos o ID do último vídeo postado
+    const videoId = 'YDO3AdgTKe8'; // ID do último vídeo (exemplo)
+    const videoTitle = 'OPTIMIZER FOR WINDOWS - @GrafenoTK | A VOLTA DA GRAFANOTK.XYZ';
+    
+    // Inserir o iframe com o vídeo mais recente
     youtubeContainer.innerHTML = `
         <div class="video-container">
-            <h3>OPTIMIZER FOR WINDOWS - @GrafenoTK | A VOLTA DA GRAFANOTK.XYZ</h3>
+            <h3>${videoTitle}</h3>
             <iframe 
                 width="560"
                 height="315"
-                src="https://www.youtube.com/embed/${videoId}" 
+                src="https://www.youtube.com/embed/${videoId}?autoplay=1" 
                 frameborder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen>
             </iframe>
+            <p>Canal: <a href="https://www.youtube.com/channel/${channelId}" target="_blank">GrafenoTK</a></p>
         </div>
     `;
 }
