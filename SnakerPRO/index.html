@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake and Fruit</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #3498db, #8e44ad);
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Animação das nuvens */
+        .cloud {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            z-index: -1;
+            animation: float linear infinite;
+        }
+        
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50%;
+        }
+        
+        .cloud::before {
+            width: 60%;
+            height: 100%;
+            top: -50%;
+            left: 20%;
+        }
+        
+        .cloud::after {
+            width: 40%;
+            height: 80%;
+            top: -30%;
+            right: 20%;
+        }
+        
+        @keyframes float {
+            from { transform: translateX(100vw); }
+            to { transform: translateX(-100px); }
+        }
+        
+        /* Container principal */
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+            max-width: 800px;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            padding: 30px;
+            margin: 20px 0;
+            backdrop-filter: blur(5px);
+            z-index: 1;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 36px;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Menu principal */
+        #main-menu {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        /* Formulário de jogador */
+        #player-form {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #8e44ad;
+        }
+        
+        /* Jogo */
+        #game-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        
+        #game-header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        
+        #player-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        #player-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #3498db;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        #game-board {
+            width: 400px;
+            height: 400px;
+            border: 2px solid #333;
+            background-color: rgba(236, 240, 241, 0.7);
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .snake-part {
+            width: 20px;
+            height: 20px;
+            background-color: #27ae60;
+            position: absolute;
+            border-radius: 3px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .snake-head {
+            background-color: #2ecc71;
+        }
+        
+        .fruit {
+            width: 20px;
+            height: 20px;
+            background-color: #e74c3c;
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(231, 76, 60, 0.5);
+        }
+        
+        .special-fruit {
+            width: 20px;
+            height: 20px;
+            position: absolute;
+            border-radius: 50%;
+            box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+            animation: pulse 1.5s infinite;
+        }
+        
+        .special-fruit.speed {
+            background-color: #f39c12;
+        }
+        
+        .special-fruit.score {
+            background-color: #9b59b6;
+        }
+        
+        .special-fruit.size {
+            background-color: #1abc9c;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        
+        #score-board {
+            width: 100%;
+            margin-top: 20px;
+            font-size: 20px;
+            color: #2c3e50;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        #time-display {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        #controls {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: rgba(236, 240, 241, 0.7);
+            border-radius: 10px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        button {
+            padding: 12px 24px;
+            margin: 0 5px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.primary {
+            background-color: #27ae60;
+        }
+        
+        button.primary:hover {
+            background-color: #219955;
+        }
+        
+        button.secondary {
+            background-color: #7f8c8d;
+        }
+        
+        button.secondary:hover {
+            background-color: #6d7b7c;
+        }
+        
+        button.danger {
+            background-color: #e74c3c;
+        }
+        
+        button.danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .powerup-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 12px;
+            margin-right: 5px;
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+            background-color: #2980b9;
+        }
+        
+        #active-powerups {
+            display: flex;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            gap: 5px;
+        }
+        
+        .game-over {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            width: 80%;
+            max-width: 300px;
+        }
+        
+        .game-over h2 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #e74c3c;
+        }
+        
+        /* Tabela de pontuação */
+        #leaderboard {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        
+        #leaderboard th, #leaderboard td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        #leaderboard th {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        #leaderboard tr:nth-child(even) {
+            background-color: rgba(236, 240, 241, 0.5);
+        }
+        
+        #leaderboard tr:hover {
+            background-color: rgba(189, 195, 199, 0.5);
+        }
+        
+        /* Responsividade */
+        @media (max-width: 600px) {
+            #game-board {
+                width: 320px;
+                height: 320px;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Nuvens de fundo -->
+    <div class="cloud" style="width: 100px; height: 60px; top: 15%; animation-duration: 30s;"></div>
+    <div class="cloud" style="width: 80px; height: 40px; top: 40%; animation-duration: 25s; animation-delay: 5s;"></div>
+    <div class="cloud" style="width: 120px; height: 70px; top: 70%; animation-duration: 35s; animation-delay: 10s;"></div>
+    <div class="cloud" style="width: 60px; height: 30px; top: 85%; animation-duration: 20s; animation-delay: 15s;"></div>
+    <div class="cloud" style="width: 150px; height: 90px; top: 25%; animation-duration: 40s; animation-delay: 20s;"></div>
+    
+    <div class="container">
+        <!-- Menu Principal -->
+        <div id="main-menu">
+            <h1>Snake and Fruit</h1>
+            
+            <form id="player-form">
+                <div class="form-group">
+                    <label for="player-name">Nome do Jogador:</label>
+                    <input type="text" id="player-name" placeholder="Digite seu nome" required>
+                </div>
+                <button type="submit" class="primary" id="start-game-btn">Iniciar Jogo</button>
+            </form>
+            
+            <h2>Melhores Pontuações</h2>
+            <table id="leaderboard">
+                <thead>
+                    <tr>
+                        <th>Jogador</th>
+                        <th>Pontuação</th>
+                        <th>Tempo</th>
+                        <th>Data</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- Pontuações serão adicionadas aqui -->
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Jogo -->
+        <div id="game-container">
+            <div id="game-header">
+                <div id="player-info">
+                    <div id="player-avatar"></div>
+                    <span id="current-player">Jogador</span>
+                </div>
+                <button id="return-menu" class="secondary">Voltar ao Menu</button>
+            </div>
+            
+            <div id="game-board">
+                <div class="game-over" id="game-over">
+                    <h2>Game Over!</h2>
+                    <p id="final-score">Pontuação: 0</p>
+                    <p id="final-time">Tempo: 00:00</p>
+                    <button id="restart-button" class="primary">Jogar Novamente</button>
+                    <button id="save-score-button" class="primary">Salvar Pontuação</button>
+                </div>
+            </div>
+            
+            <div id="score-board">
+                <div>Pontuação: <span id="score">0</span></div>
+                <div>Melhor: <span id="high-score">0</span></div>
+            </div>
+            
+            <div id="time-display">
+                Tempo: <span id="time">00:00</span>
+                <div id="active-powerups">
+                    <!-- Power-ups ativos aparecerão aqui -->
+                </div>
+            </div>
+            
+            <div id="controls">
+                <p>Use as setas do teclado para mover a cobra</p>
+                <div>
+                    <button id="start-button" class="primary">Iniciar Jogo</button>
+                    <button id="pause-button" class="secondary">Pausar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Elementos DOM
+            const mainMenu = document.getElementById('main-menu');
+            const gameContainer = document.getElementById('game-container');
+            const playerForm = document.getElementById('player-form');
+            const playerNameInput = document.getElementById('player-name');
+            const currentPlayerSpan = document.getElementById('current-player');
+            const playerAvatar = document.getElementById('player-avatar');
+            const returnMenuButton = document.getElementById('return-menu');
+            const leaderboardBody = document.getElementById('leaderboard-body');
+            
+            // Jogo
+            const gameBoard = document.getElementById('game-board');
+            const scoreElement = document.getElementById('score');
+            const highScoreElement = document.getElementById('high-score');
+            const finalScoreElement = document.getElementById('final-score');
+            const finalTimeElement = document.getElementById('final-time');
+            const timeElement = document.getElementById('time');
+            const activePowerupsElement = document.getElementById('active-powerups');
+            const gameOverElement = document.getElementById('game-over');
+            const startButton = document.getElementById('start-button');
+            const pauseButton = document.getElementById('pause-button');
+            const restartButton = document.getElementById('restart-button');
+            const saveScoreButton = document.getElementById('save-score-button');
+            
+            // Configurações do jogo
+            const boardSize = 400;
+            const gridSize = 20;
+            const gridCount = boardSize / gridSize;
+            let snake = [];
+            let direction = 'right';
+            let nextDirection = 'right';
+            let fruit = null;
+            let specialFruit = null;
+            let specialFruitType = null;
+            let specialFruitTimeout = null;
+            let score = 0;
+            let gameSpeed = 150;
+            let gameLoop;
+            let isGameRunning = false;
+            let isPaused = false;
+            let currentPlayer = '';
+            
+            // Temporizador
+            let startTime = 0;
+            let elapsedTime = 0;
+            let timerInterval;
+            
+            // Power-ups
+            let activePowerups = {};
+            
+            // Carregar pontuações salvas
+            let savedScores = JSON.parse(localStorage.getItem('snakeScores')) || [];
+            
+            // Função para formatar tempo (segundos para MM:SS)
+            function formatTime(seconds) {
+                const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+                const secs = (seconds % 60).toString().padStart(2, '0');
+                return `${mins}:${secs}`;
+            }
+            
+            // Função para atualizar a tabela de pontuações
+            function updateLeaderboard() {
+                // Ordenar por pontuação (maior para menor)
+                savedScores.sort((a, b) => b.score - a.score);
+                
+                // Limpar tabela atual
+                leaderboardBody.innerHTML = '';
+                
+                // Adicionar as 10 melhores pontuações
+                const topScores = savedScores.slice(0, 10);
+                topScores.forEach(scoreData => {
+                    const row = document.createElement('tr');
+                    
+                    const nameCell = document.createElement('td');
+                    nameCell.textContent = scoreData.playerName;
+                    
+                    const scoreCell = document.createElement('td');
+                    scoreCell.textContent = scoreData.score;
+                    
+                    const timeCell = document.createElement('td');
+                    timeCell.textContent = scoreData.time || '00:00';
+                    
+                    const dateCell = document.createElement('td');
+                    dateCell.textContent = new Date(scoreData.date).toLocaleDateString();
+                    
+                    row.appendChild(nameCell);
+                    row.appendChild(scoreCell);
+                    row.appendChild(timeCell);
+                    row.appendChild(dateCell);
+                    
+                    leaderboardBody.appendChild(row);
+                });
+                
+                // Atualizar melhor pontuação para o jogador atual
+                if (currentPlayer) {
+                    const playerBestScore = savedScores
+                        .filter(s => s.playerName === currentPlayer)
+                        .sort((a, b) => b.score - a.score)[0];
+                    
+                    if (playerBestScore) {
+                        highScoreElement.textContent = playerBestScore.score;
+                    } else {
+                        highScoreElement.textContent = '0';
+                    }
+                }
+            }
+            
+            // Iniciar o temporizador
+            function startTimer() {
+                startTime = Date.now() - elapsedTime;
+                timerInterval = setInterval(() => {
+                    elapsedTime = Date.now() - startTime;
+                    const seconds = Math.floor(elapsedTime / 1000);
+                    timeElement.textContent = formatTime(seconds);
+                }, 1000);
+            }
+            
+            // Pausar o temporizador
+            function pauseTimer() {
+                clearInterval(timerInterval);
+            }
+            
+            // Reiniciar o temporizador
+            function resetTimer() {
+                clearInterval(timerInterval);
+                elapsedTime = 0;
+                timeElement.textContent = '00:00';
+            }
+            
+            // Iniciar o jogo com um jogador
+            playerForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                currentPlayer = playerNameInput.value.trim();
+                
+                if (currentPlayer) {
+                    mainMenu.style.display = 'none';
+                    gameContainer.style.display = 'flex';
+                    
+                    // Definir nome do jogador e avatar
+                    currentPlayerSpan.textContent = currentPlayer;
+                    playerAvatar.textContent = currentPlayer.charAt(0).toUpperCase();
+                    
+                    // Atualizar melhor pontuação para este jogador
+                    updateLeaderboard();
+                    
+                    // Inicializar o jogo
+                    initGame();
+                }
+            });
+            
+            // Voltar ao menu principal
+            returnMenuButton.addEventListener('click', () => {
+                if (isGameRunning) {
+                    clearInterval(gameLoop);
+                    isGameRunning = false;
+                    pauseTimer();
+                }
+                
+                gameContainer.style.display = 'none';
+                mainMenu.style.display = 'flex';
+                updateLeaderboard();
+            });
+            
+            // Salvar pontuação
+            saveScoreButton.addEventListener('click', () => {
+                if (score > 0) {
+                    const totalSeconds = Math.floor(elapsedTime / 1000);
+                    const timeString = formatTime(totalSeconds);
+                    
+                    const newScore = {
+                        playerName: currentPlayer,
+                        score: score,
+                        time: timeString,
+                        timeSeconds: totalSeconds,
+                        date: new Date().toISOString()
+                    };
+                    
+                    savedScores.push(newScore);
+                    localStorage.setItem('snakeScores', JSON.stringify(savedScores));
+                    
+                    updateLeaderboard();
+                    saveScoreButton.disabled = true;
+                    saveScoreButton.textContent = 'Pontuação Salva!';
+                }
+            });
+            
+            // Inicializar o jogo
+            function initGame() {
+                // Posição inicial da cobra (sempre no centro)
+                snake = [{x: Math.floor(gridCount/2), y: Math.floor(gridCount/2)}];
+                direction = 'right';
+                nextDirection = 'right';
+                score = 0;
+                scoreElement.textContent = score;
+                gameOverElement.style.display = 'none';
+                
+                // Reiniciar temporizador
+                resetTimer();
+                
+                // Reiniciar power-ups
+                activePowerups = {};
+                activePowerupsElement.innerHTML = '';
+                
+                // Restaurar velocidade padrão
+                gameSpeed = 150;
+                
+                // Reiniciar botão de salvar
+                saveScoreButton.disabled = false;
+                saveScoreButton.textContent = 'Salvar Pontuação';
+                
+                // Gerar a primeira fruta
+                fruit = generateFruit();
+                
+                // Limpar qualquer fruta especial
+                specialFruit = null;
+                if (specialFruitTimeout) {
+                    clearTimeout(specialFruitTimeout);
+                    specialFruitTimeout = null;
+                }
+                
+                // Renderizar o estado inicial
+                renderGame();
+            }
+            
+            // Eventos de botões
+            startButton.addEventListener('click', startGame);
+            pauseButton.addEventListener('click', togglePause);
+            restartButton.addEventListener('click', resetGame);
+            
+            // Controle de direção
+            document.addEventListener('keydown', (e) => {
+                if (!isGameRunning || isPaused) return;
+                
+                switch(e.key) {
+                    case 'ArrowUp':
+                        if (direction !== 'down') nextDirection = 'up';
+                        break;
+                    case 'ArrowDown':
+                        if (direction !== 'up') nextDirection = 'down';
+                        break;
+                    case 'ArrowLeft':
+                        if (direction !== 'right') nextDirection = 'left';
+                        break;
+                    case 'ArrowRight':
+                        if (direction !== 'left') nextDirection = 'right';
+                        break;
+                }
+            });
+			
+			// Add this code inside your document.addEventListener('DOMContentLoaded', () => { ... }) function
+// Add touch controls for mobile devices
+let touchStartX = 0;
+let touchStartY = 0;
+
+gameBoard.addEventListener('touchstart', (e) => {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    e.preventDefault(); // Prevent scrolling when touching the game board
+});
+
+gameBoard.addEventListener('touchmove', (e) => {
+    if (!isGameRunning || isPaused) return;
+    
+    e.preventDefault(); // Prevent scrolling when swiping on the game board
+    
+    const touchEndX = e.touches[0].clientX;
+    const touchEndY = e.touches[0].clientY;
+    
+    const diffX = touchEndX - touchStartX;
+    const diffY = touchEndY - touchStartY;
+    
+    // Determine if horizontal or vertical swipe based on which has greater distance
+    if (Math.abs(diffX) > Math.abs(diffY)) {
+        // Horizontal swipe
+        if (diffX > 0 && direction !== 'left') {
+            // Swipe right
+            nextDirection = 'right';
+        } else if (diffX < 0 && direction !== 'right') {
+            // Swipe left
+            nextDirection = 'left';
+        }
+    } else {
+        // Vertical swipe
+        if (diffY > 0 && direction !== 'up') {
+            // Swipe down
+            nextDirection = 'down';
+        } else if (diffY < 0 && direction !== 'down') {
+            // Swipe up
+            nextDirection = 'up';
+        }
+    }
+    
+    // Update starting position for the next move
+    touchStartX = touchEndX;
+    touchStartY = touchEndY;
+});
+            
+            // Iniciar o jogo
+            function startGame() {
+                if (!isGameRunning) {
+                    initGame(); // Reinicializar todas as variáveis
+                    isGameRunning = true;
+                    gameLoop = setInterval(updateGame, gameSpeed);
+                    startTimer();
+                    startButton.textContent = 'Reiniciar';
+                    startButton.removeEventListener('click', startGame);
+                    startButton.addEventListener('click', resetGame);
+                    
+                    // Iniciar temporizador para gerar fruta especial
+                    scheduleSpecialFruit();
+                }
+            }
+            
+            // Agendar o surgimento de uma fruta especial
+            function scheduleSpecialFruit() {
+                // Tempo aleatório entre 10 e 20 segundos
+                const delay = 10000 + Math.random() * 10000;
+                
+                specialFruitTimeout = setTimeout(() => {
+                    if (isGameRunning && !isPaused) {
+                        generateSpecialFruit();
+                    }
+                    
+                    // Agendar a próxima fruta especial
+                    if (isGameRunning) {
+                        scheduleSpecialFruit();
+                    }
+                }, delay);
+            }
+            
+            // Gerar fruta especial
+            function generateSpecialFruit() {
+                // Tipos de frutas especiais
+                const types = ['speed', 'score', 'size'];
+                specialFruitType = types[Math.floor(Math.random() * types.length)];
+                
+                let newFruit;
+                let isOnSnake;
+                let isOnRegularFruit;
+                
+                do {
+                    isOnSnake = false;
+                    isOnRegularFruit = false;
+                    
+                    newFruit = {
+                        x: Math.floor(Math.random() * gridCount),
+                        y: Math.floor(Math.random() * gridCount)
+                    };
+                    
+                    // Verificar se está sobre a cobra
+                    for (let part of snake) {
+                        if (part.x === newFruit.x && part.y === newFruit.y) {
+                            isOnSnake = true;
+                            break;
+                        }
+                    }
+                    
+                    // Verificar se está sobre a fruta regular
+                    if (fruit && fruit.x === newFruit.x && fruit.y === newFruit.y) {
+                        isOnRegularFruit = true;
+                    }
+                    
+                } while (isOnSnake || isOnRegularFruit);
+                
+                specialFruit = newFruit;
+                
+                // Fazer a fruta especial desaparecer após 5 segundos
+                setTimeout(() => {
+                    if (specialFruit) {
+                        specialFruit = null;
+                        specialFruitType = null;
+                        renderGame();
+                    }
+                }, 5000);
+                
+                renderGame();
+            }
+            
+            // Pausar/continuar o jogo
+            function togglePause() {
+                if (isGameRunning) {
+                    if (isPaused) {
+                        gameLoop = setInterval(updateGame, gameSpeed);
+                        startTimer();
+                        pauseButton.textContent = 'Pausar';
+                        isPaused = false;
+                    } else {
+                        clearInterval(gameLoop);
+                        pauseTimer();
+                        pauseButton.textContent = 'Continuar';
+                        isPaused = true;
+                    }
+                }
+            }
+            
+            // Reiniciar o jogo
+            function resetGame() {
+                clearInterval(gameLoop);
+                if (specialFruitTimeout) {
+                    clearTimeout(specialFruitTimeout);
+                    specialFruitTimeout = null;
+                }
+                initGame();
+                isGameRunning = false;
+                isPaused = false;
+                pauseButton.textContent = 'Pausar';
+                startButton.textContent = 'Iniciar Jogo';
+                startButton.removeEventListener('click', resetGame);
+                startButton.addEventListener('click', startGame);
+                resetTimer();
+            }
+            
+            // Aplicar power-up baseado no tipo de fruta especial
+            function applyPowerup(type) {
+                switch(type) {
+                    case 'speed':
+                        // Aumentar velocidade temporariamente
+                        const originalSpeed = gameSpeed;
+                        clearInterval(gameLoop);
+                        gameSpeed = gameSpeed / 1.5; // 50% mais rápido
+                        gameLoop = setInterval(updateGame, gameSpeed);
+                        
+                        // Adicionar indicador visual
+                        addPowerupIndicator('speed', 'Velocidade +50%');
+                        
+                        // Power-up dura 5 segundos
+                        setTimeout(() => {
+                            if (isGameRunning && !isPaused) {
+                                clearInterval(gameLoop);
+                                gameSpeed = originalSpeed;
+                                gameLoop = setInterval(updateGame, gameSpeed);
+                                removePowerupIndicator('speed');
+                            }
+                        }, 5000);
+                        break;
+                        
+                    case 'score':
+                        // Dobrar pontos por 10 segundos
+                        addPowerupIndicator('score', 'Pontos x2');
+                        
+                        activePowerups.doubleScore = true;
+                        
+                        setTimeout(() => {
+                            activePowerups.doubleScore = false;
+                            removePowerupIndicator('score');
+                        }, 10000);
+                        break;
+                        
+                    case 'size':
+                        // Aumentar cobra sem pontuação (crescimento instantâneo)
+                        const segments = 3; // Adiciona 3 segmentos
+                        
+                        // Clonar o último segmento várias vezes
+                        const lastSegment = snake[snake.length - 1];
+                        for (let i = 0; i < segments; i++) {
+                            snake.push({...lastSegment});
+                        }
+                        
+                        // Indicador visual temporário
+                        addPowerupIndicator('size', '+3 segmentos');
+                        
+                        // Remover indicador após 3 segundos
+                        setTimeout(() => {
+                            removePowerupIndicator('size');
+                        }, 3000);
+                        break;
+                }
+            }
+            
+            // Adicionar indicador de power-up
+            function addPowerupIndicator(id, text) {
+                // Remover indicador existente se houver
+                removePowerupIndicator(id);
+                
+                // Criar novo indicador
+                const indicator = document.createElement('div');
+                indicator.className = 'powerup-indicator';
+                indicator.id = 'powerup-' + id;
+                indicator.textContent = text;
+                
+                activePowerupsElement.appendChild(indicator);
+            }
+            
+            // Remover indicador de power-up
+            function removePowerupIndicator(id) {
+                const indicator = document.getElementById('powerup-' + id);
+                if (indicator) {
+                    activePowerupsElement.removeChild(indicator);
+                }
+            }
+            
+            // Atualizar o estado do jogo
+function updateGame() {
+    direction = nextDirection;
+    
+    // Mover a cobra
+    const head = {...snake[0]};
+    
+    switch(direction) {
+        case 'up': 
+            head.y -= 1;
+            break;
+        case 'down': 
+            head.y += 1;
+            break;
+        case 'left': 
+            head.x -= 1;
+            break;
+        case 'right': 
+            head.x += 1;
+            break;
+    }
+    
+    // Verificar colisão com a parede
+    if (head.x < 0 || head.x >= gridCount || head.y < 0 || head.y >= gridCount) {
+        gameOver();
+        return;
+    }
+    
+    // Verificar colisão com a própria cobra
+    for (let i = 0; i < snake.length; i++) {
+        if (snake[i].x === head.x && snake[i].y === head.y) {
+            gameOver();
+            return;
+        }
+    }
+    
+    // Adicionar nova cabeça
+    snake.unshift(head);
+    
+    // Verificar colisão com a fruta
+    if (fruit && head.x === fruit.x && head.y === fruit.y) {
+        // Aumentar pontuação
+        const points = activePowerups.doubleScore ? 10 : 5;
+        score += points;
+        scoreElement.textContent = score;
+        
+        // Gerar nova fruta
+        fruit = generateFruit();
+    } else if (specialFruit && head.x === specialFruit.x && head.y === specialFruit.y) {
+        // Aplicar power-up
+        applyPowerup(specialFruitType);
+        specialFruit = null;
+        specialFruitType = null;
+    } else {
+        // Se não comeu nada, remover o último segmento
+        snake.pop();
+    }
+    
+    // Renderizar o jogo
+    renderGame();
+}
+
+// Gerar uma nova fruta
+function generateFruit() {
+    let newFruit;
+    let isOnSnake;
+    
+    do {
+        isOnSnake = false;
+        
+        newFruit = {
+            x: Math.floor(Math.random() * gridCount),
+            y: Math.floor(Math.random() * gridCount)
+        };
+        
+        // Verificar se está sobre a cobra
+        for (let part of snake) {
+            if (part.x === newFruit.x && part.y === newFruit.y) {
+                isOnSnake = true;
+                break;
+            }
+        }
+        
+    } while (isOnSnake);
+    
+    return newFruit;
+}
+
+// Renderizar o estado atual do jogo
+function renderGame() {
+    // Limpar o quadro de jogo
+    gameBoard.innerHTML = '';
+    
+    // Sempre adicionar o elemento de game over (ele só ficará visível quando necessário)
+    gameBoard.appendChild(gameOverElement);
+    
+    // Renderizar a cobra
+    snake.forEach((part, index) => {
+        const snakePart = document.createElement('div');
+        snakePart.className = index === 0 ? 'snake-part snake-head' : 'snake-part';
+        snakePart.style.left = `${part.x * gridSize}px`;
+        snakePart.style.top = `${part.y * gridSize}px`;
+        gameBoard.appendChild(snakePart);
+    });
+    
+    // Renderizar a fruta
+    if (fruit) {
+        const fruitElement = document.createElement('div');
+        fruitElement.className = 'fruit';
+        fruitElement.style.left = `${fruit.x * gridSize}px`;
+        fruitElement.style.top = `${fruit.y * gridSize}px`;
+        gameBoard.appendChild(fruitElement);
+    }
+    
+    // Renderizar fruta especial
+    if (specialFruit) {
+        const specialFruitElement = document.createElement('div');
+        specialFruitElement.className = `special-fruit ${specialFruitType}`;
+        specialFruitElement.style.left = `${specialFruit.x * gridSize}px`;
+        specialFruitElement.style.top = `${specialFruit.y * gridSize}px`;
+        gameBoard.appendChild(specialFruitElement);
+    }
+}
+
+// Game Over
+// Game Over
+function gameOver() {
+    clearInterval(gameLoop);
+    isGameRunning = false;
+    pauseTimer();
+    
+    // Mostrar tela de fim de jogo
+    finalScoreElement.textContent = `Pontuação: ${score}`;
+    finalTimeElement.textContent = `Tempo: ${timeElement.textContent}`;
+    gameOverElement.style.display = 'block';
+    
+    // Importante: renderizar novamente para garantir que a tela de game over apareça
+    renderGame();
+    
+    // Cancelar temporizador de fruta especial
+    if (specialFruitTimeout) {
+        clearTimeout(specialFruitTimeout);
+        specialFruitTimeout = null;
+    }
+}
+
+// Carregar pontuações ao iniciar
+updateLeaderboard();
+
+});
+</script>
+</body>
+</html>
