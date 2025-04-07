@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GrafenoTTK Project Webhook</title>
+    <style>
+        :root {
+            --dark-bg: #1e1e2e;
+            --darker-bg: #181825;
+            --light-bg: #292938;
+            --red-accent: #ff3232;
+            --red-hover: #ff5252;
+            --text-primary: #f0f0f0;
+            --text-secondary: #c0c0c0;
+            --border-color: #3a3a4a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 10px;
+            background-color: var(--darker-bg);
+            border-radius: 10px;
+            border-bottom: 3px solid var(--red-accent);
+        }
+        
+        header h1 {
+            font-size: 2rem;
+            color: var(--red-accent);
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            color: var(--text-secondary);
+        }
+        
+        .form-section {
+            background-color: var(--darker-bg);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 200px);
+        }
+        
+        .preview-section {
+            background-color: var(--darker-bg);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .section-title {
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--red-accent);
+            color: var(--text-primary);
+            font-size: 1.5rem;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+        }
+        
+        input[type="text"],
+        input[type="url"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--light-bg);
+            color: var(--text-primary);
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--red-accent);
+        }
+        
+        textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        
+        .primary-button {
+            background-color: var(--red-accent);
+            color: white;
+        }
+        
+        .primary-button:hover {
+            background-color: var(--red-hover);
+        }
+        
+        .secondary-button {
+            background-color: var(--light-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+        
+        .secondary-button:hover {
+            background-color: var(--border-color);
+        }
+        
+        .icon-button {
+            background-color: transparent;
+            color: var(--text-secondary);
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .icon-button:hover {
+            color: var(--red-accent);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .button-group button {
+            flex: 1;
+        }
+        
+        .divider {
+            height: 1px;
+            background-color: var(--border-color);
+            margin: 20px 0;
+        }
+        
+        .embed-item {
+            background-color: var(--light-bg);
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 20px;
+            position: relative;
+            border-left: 3px solid var(--red-accent);
+        }
+        
+        .embed-actions {
+            display: flex;
+            gap: 5px;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+        
+        .field-group {
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .field-group-actions {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+        }
+        
+        .inline-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        
+        .inline-checkbox input[type="checkbox"] {
+            accent-color: var(--red-accent);
+        }
+        
+        .field-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .field-col {
+            flex: 1;
+        }
+        
+        input[type="color"] {
+            width: 100%;
+            height: 38px;
+            border: none;
+            border-radius: 5px;
+            background-color: transparent;
+            cursor: pointer;
+        }
+        
+        .color-preview {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 5px;
+            background-color: var(--red-accent);
+        }
+        
+        .discord-preview {
+            background-color: var(--light-bg);
+            border-radius: 5px;
+            padding: 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+            max-height: calc(100vh - 300px);
+        }
+        
+        .discord-message {
+            margin-bottom: 10px;
+        }
+        
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--red-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            overflow: hidden;
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .name {
+            font-weight: bold;
+            color: white;
+        }
+        
+        .timestamp {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        
+        .message-content {
+            margin-left: 48px;
+            margin-bottom: 8px;
+        }
+        
+        .message-image {
+            margin-left: 48px;
+            max-width: 300px;
+            border-radius: 3px;
+            margin-top: 5px;
+        }
+        
+        .embed {
+            margin-left: 48px;
+            margin-top: 8px;
+            padding: 8px 10px 8px 12px;
+            border-left: 4px solid var(--red-accent);
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 0 3px 3px 0;
+        }
+        
+        .embed-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .embed-description {
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+        
+        .embed-image {
+            max-width: 100%;
+            border-radius: 3px;
+            margin: 5px 0;
+        }
+        
+        .embed-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 8px 0;
+        }
+        
+        .embed-field {
+            margin-bottom: 5px;
+        }
+        
+        .field-name {
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .field-value {
+            font-size: 0.9rem;
+        }
+        
+        .embed-footer {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-top: 8px;
+        }
+        
+        .footer-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background-color: var(--border-color);
+        }
+        
+        .url-info {
+            background-color: rgba(255, 50, 50, 0.1);
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-left: 3px solid var(--red-accent);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .embed-fields {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>GrafenoTTK Project Webhook</h1>
+            <p>Editor de Webhook para Discord</p>
+        </header>
+        
+        <section class="form-section">
+            <h2 class="section-title">Configuração do Webhook</h2>
+            
+            <div class="url-info">
+                Para todas as imagens, você deve fornecer links diretos para imagens hospedadas na web.
+                <br>Use serviços como Imgur, ImgBB, ou Discord CDN para hospedar suas imagens.
+            </div>
+            
+            <div class="input-group">
+                <label for="webhook-url">URL do Webhook *</label>
+                <input type="url" id="webhook-url" placeholder="https://discord.com/api/webhooks/...">
+            </div>
+            
+            <div class="input-group">
+                <label for="username">Nome de Usuário</label>
+                <input type="text" id="username" placeholder="Nome personalizado do webhook">
+            </div>
+            
+            <div class="input-group">
+                <label for="avatar-url">URL do Avatar</label>
+                <input type="url" id="avatar-url" placeholder="https://exemplo.com/avatar.png">
+            </div>
+            
+            <div class="input-group">
+                <label for="content">Conteúdo da Mensagem</label>
+                <textarea id="content" rows="4" placeholder="Digite o conteúdo da sua mensagem..."></textarea>
+            </div>
+            
+            <div class="input-group">
+                <label for="message-image-url">URL da Imagem da Mensagem (opcional)</label>
+                <input type="url" id="message-image-url" placeholder="https://exemplo.com/imagem.png">
+            </div>
+            
+            <div class="divider"></div>
+            
+            <h2 class="section-title">Embeds</h2>
+            
+            <div id="embed-list">
+                <div class="embed-item" data-embed-id="1">
+                    <div class="embed-actions">
+                        <button class="icon-button" title="Mover para cima">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="18 15 12 9 6 15"></polyline>
+                            </svg>
+                        </button>
+                        <button class="icon-button" title="Mover para baixo">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </button>
+                        <button class="icon-button" title="Remover embed">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="embed-title-1">
+                            <span class="color-preview" style="background-color: #ff3232;"></span>
+                            Cor e Título
+                        </label>
+                        <div class="field-row">
+                            <div class="field-col">
+                                <input type="color" id="embed-color-1" value="#ff3232">
+                            </div>
+                            <div class="field-col" style="flex: 5;">
+                                <input type="text" id="embed-title-1" placeholder="Título do embed">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="embed-description-1">Descrição</label>
+                        <textarea id="embed-description-1" rows="3" placeholder="Descrição do embed..."></textarea>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="embed-image-url-1">URL da Imagem do Embed (opcional)</label>
+                        <input type="url" id="embed-image-url-1" placeholder="https://exemplo.com/imagem-embed.png">
+                    </div>
+                    
+                    <div class="divider"></div>
+                    
+                    <h4>Campos</h4>
+                    <div class="fields-container">
+                        <div class="field-group" data-field-id="1">
+                            <div class="field-group-actions">
+                                <button class="icon-button" title="Remover campo">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="input-group">
+                                <label>Nome do campo</label>
+                                <input type="text" placeholder="Nome do campo">
+                            </div>
+                            <div class="input-group">
+                                <label>Valor do campo</label>
+                                <textarea rows="2" placeholder="Valor do campo"></textarea>
+                            </div>
+                            <div class="inline-checkbox">
+                                <input type="checkbox" id="field-inline-1">
+                                <label for="field-inline-1">Campo inline</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="secondary-button" style="width: 100%;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Adicionar Campo
+                    </button>
+                    
+                    <div class="divider"></div>
+                    
+                    <div class="input-group">
+                        <label for="embed-footer-1">Rodapé</label>
+                        <input type="text" id="embed-footer-1" placeholder="Texto do rodapé">
+                    </div>
+                </div>
+            </div>
+            
+            <button id="add-embed" class="secondary-button" style="width: 100%;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                Adicionar Novo Embed
+            </button>
+            
+            <div class="button-group">
+                <button id="send-webhook" class="primary-button">Enviar Webhook</button>
+                <button id="save-webhook" class="secondary-button">Salvar Webhook</button>
+                <button id="clear-form" class="secondary-button">Limpar Tudo</button>
+            </div>
+        </section>
+        
+        <section class="preview-section">
+            <h2 class="section-title">Prévia</h2>
+            <div class="discord-preview">
+                <div class="discord-message">
+                    <div class="message-header">
+                        <div class="avatar">W</div>
+                        <div class="name">Webhook Bot</div>
+                        <div class="timestamp">Hoje às 12:00</div>
+                    </div>
+                    <div class="message-content">Esta é uma prévia da sua mensagem.</div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
